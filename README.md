@@ -1,55 +1,62 @@
 # Shared Bill Splitter
 
-A small full-stack shared-home bill splitter. The API runs on Hono and Cloudflare Workers, persists data in Cloudflare D1 (SQLite), and the web client uses React, Vite, TanStack Router, and TypeScript.
+A full-stack application for managing shared household expenses. Users can create homes, add members, split bills equally and track individual payments.
 
-## Requirements
+## Tech Stack
 
-- Node.js 20 or newer
-- pnpm 10
-- Cloudflare Wrangler local development (installed through the API package)
+- **Frontend:** React, Vite, TypeScript, TanStack Router
+- **Backend:** Hono, Cloudflare Workers
+- **Database:** Cloudflare D1 (SQLite)
+- **Testing:** Vitest
+- **Code Quality:** Biome
+- **Package Manager:** pnpm
 
-## Run locally
+## Features
+
+- Create homes and add members.
+- Create bills and automatically split them among members.
+- Distribute remainder cents in member insertion order.
+- Record individual payments.
+- Prevent duplicate payments using idempotency keys.
+- Calculate outstanding balances.
+- Handle API errors and loading states.
+
+## Getting Started
+
+**Prerequisites:** Node.js 20+ and pnpm.
+
+Install dependencies:
 
 ```bash
 pnpm install
+```
+
+Start the application:
+
+```bash
 pnpm dev
 ```
 
-Open <http://localhost:5173>. The web app starts with a local demo home setup flow. The API is available at <http://localhost:8787>; `GET /api/health` returns `{ "status": "ok" }`.
+Frontend: http://localhost:5173
 
-Wrangler creates and migrates the local D1 database when the API starts. To apply migrations manually:
+Backend: http://localhost:8787
 
-```bash
-pnpm --filter bill-splitter-api db:migrate:local
-```
+## API Endpoints
 
-## Checks
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/homes` | Create a home |
+| POST | `/api/homes/:homeId/members` | Add a member |
+| POST | `/api/homes/:homeId/bills` | Create and split a bill |
+| POST | `/api/bills/:billId/shares/:shareId/pay` | Pay a share |
+| GET | `/api/homes/:homeId/balances` | Get outstanding balances |
 
-```bash
-pnpm test
-pnpm check
-pnpm typecheck
-pnpm build
-```
+## Design Decisions
 
-## API
+1. **Integer-based money handling:** Store amounts in cents to avoid floating-point precision errors.
+2. **Idempotent payments:** Use conditional database updates and idempotency keys to prevent duplicate payments and handle concurrent requests.
+3. **Database constraints:** Use foreign keys, CHECK constraints and UNIQUE constraints to maintain data integrity.
 
-- `POST /api/homes`
-- `GET /api/homes/:homeId`
-- `POST /api/homes/:homeId/members`
-- `POST /api/homes/:homeId/bills`
-- `GET /api/homes/:homeId/bills`
-- `GET /api/homes/:homeId/balances`
-- `POST /api/bills/:billId/shares/:shareId/pay`
 
-All API errors use `{ "error": "message" }`. Money is represented only as integer cents.
-
-## Decisions
-
-1. **Store money as integer cents.** Integer arithmetic avoids floating-point rounding errors and makes the split sum exact.
-2. **Use conditional database updates for payment.** A payment is accepted only when `paid_at IS NULL`; this makes concurrent attempts safe. The idempotency key is persisted on the share so a retry with the same key returns the original result.
-3. **Use SQLite constraints as a second line of defence.** Foreign keys, uniqueness, and `CHECK` constraints protect relationships and valid values even if a request handler has a bug.
-
-## Notes
-
-This is an implementation scaffold designed to be copied into the assignment's GitHub template. If the provided template has additional starter conventions or test-specific interfaces, retain those files and reconcile the corresponding configuration before submission. Do not submit without running the assignment's original visible tests.
+Author
+Siddhesh Gupta
