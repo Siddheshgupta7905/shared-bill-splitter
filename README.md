@@ -58,5 +58,5 @@ Backend: http://localhost:8787
 3. **Database constraints:** Use foreign keys, CHECK constraints and UNIQUE constraints to maintain data integrity.
 
 
-Author
+## Author
 Siddhesh Gupta
