@@ -1,0 +1,17 @@
+{
+  "name": "shared-bill-splitter",
+  "private": true,
+  "packageManager": "pnpm@10.4.1",
+  "scripts": {
+    "dev": "pnpm --parallel --filter bill-splitter-api --filter bill-splitter-web dev",
+    "test": "pnpm --filter bill-splitter-api test",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "typecheck": "pnpm --recursive typecheck",
+    "build": "pnpm --filter bill-splitter-web build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "typescript": "^5.8.3"
+  }
+}
